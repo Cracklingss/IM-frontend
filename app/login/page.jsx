@@ -1,22 +1,44 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/compat/router";
+import React, { useState } from "react";
+import axios from "axios";
+
+const API = process.env.NEXT_PUBLIC_API_URL;
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const router = useRouter();
+  const [ formData, setFormData ] = useState({
+    email: "",
+    password: ""
+  })
+  console.log(formData);
 
-  const handleLogin = (e) => {
+  const handleChange = (e) => {
     e.preventDefault();
+    const { name, value } = e.target;
 
-    // TEMP: Fake login check
-    if (email === "fuck@gmail.com" && password === "1234") {
-      // store login state (later replace with real JWT/session from backend)
-      localStorage.setItem("isLoggedIn", "true");
-      router.push("/home");
-    } else {
-      alert("Invalid email or password!");
+    setFormData((prev) => ({...prev, [name]: value}));
+  }
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    
+    try {
+      await axios.post(`${API}/api/auth/login`, formData, {
+        headers: {
+          "Content-Type": "application/json"
+        },
+        withCredentials: true
+      }).then((res) => {
+        if(res.data.status){
+          router.push("/home");
+        } else {
+          let message = res.data.message;
+          alert(message);
+        }
+      })
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -26,27 +48,26 @@ export default function LoginPage() {
         <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
 
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
-          {/* Email input */}
           <input
             type="email"
             placeholder="Enter your email"
             className="border p-2 rounded"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            name="email"
+            onChange={handleChange}
+            value={formData.email}
             required
           />
 
-          {/* Password input */}
           <input
             type="password"
             placeholder="Enter your password"
             className="border p-2 rounded"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            name="password"
+            onChange={handleChange}
+            value={formData.password}
             required
           />
 
-          {/* Login button */}
           <button
             type="submit"
             className="bg-blue-500 text-white rounded p-2 hover:bg-blue-600"

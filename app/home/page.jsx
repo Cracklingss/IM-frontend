@@ -1,23 +1,27 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import axios from "axios";
+
+const API = process.env.NEXT_PUBLIC_API_URL;
 
 export default function HomePage() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // ✅ Check if logged in, if not redirect to login
-  useEffect(() => {
-    const loggedIn = localStorage.getItem("isLoggedIn");
-    if (!loggedIn) {
-      router.push("/login");
-    }
-  }, [router]);
-
   // ✅ Logout function
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      axios.post(`${API}/api/auth/logout`, {}, {
+        headers: {
+          "Content-Type": "application/json"
+        },
+        withCredentials: true
+      })
+      router.refresh();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -65,7 +69,7 @@ export default function HomePage() {
         <h1 className="text-3xl font-bold mb-4">Welcome to Our Website 🎉</h1>
         <p className="text-gray-700 max-w-2xl">
           This is the introduction of our website. You can explore different
-          pages using the navigation bar above.  
+          pages using the navigation bar above.
           Go to <strong>About Us</strong> to learn how we built this, or use
           <strong> Contact Us</strong> to reach out.
         </p>
