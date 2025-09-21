@@ -14,7 +14,6 @@ export default function LoginPage() {
   console.log(formData);
 
   const handleChange = (e) => {
-    e.preventDefault();
     const { name, value } = e.target;
 
     setFormData((prev) => ({...prev, [name]: value}));
@@ -77,10 +76,6 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-4 text-sm text-center">
-          <a href="/register" className="text-blue-500 hover:underline">
-            Create an account
-          </a>
-          <br />
           <a href="/forgot-password" className="text-blue-500 hover:underline">
             Forgot password?
           </a>
