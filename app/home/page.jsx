@@ -1,28 +1,21 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 import axios from "axios";
 import Navbar from "@/components/navbar";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 export default function HomePage() {
-  const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleLogout = async () => {
-    try {
-      axios.post(`${API}/api/auth/logout`, {}, {
-        headers: {
-          "Content-Type": "application/json"
-        },
-        withCredentials: true
-      })
-      router.push("/login");
-    } catch (error) {
-      console.log(error);
+  const { data: session } = useSession();
+  useEffect(() => {
+    if (session?.accessToken) {
+      axios.post(`${API}/api/auth/google-login`, {
+        email: session.user.email,
+        token: session.accessToken, // send to backend
+      });
     }
-  };
+  }, [session]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 flex-grow flex flex-col items-center justify-center p-10 text-center">
